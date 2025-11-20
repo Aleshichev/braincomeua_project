@@ -7,11 +7,14 @@ import os
 import sys
 import django
 
-# Path to Django project
-project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_path)
+# Get the root directory (parent of modules/)
+root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Name of Django settings module and  project
+# Add the braincomua_project directory to Python path
+project_path = os.path.join(root_path, 'braincomua_project')
+sys.path.insert(0, project_path)
+
+# Name of Django settings module and project
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "braincomua_project.settings")
 
 # Initialize Django
