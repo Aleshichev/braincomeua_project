@@ -17,32 +17,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
+# config imports
 from config.driver_config import create_driver
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s [%(levelname)s] %(message)s",
-#     datefmt="%Y-%m-%d %H:%M:%S",
-#     filename="parser.log",
-#     encoding="utf-8",
-# )
-
-# ---------------- LOGGING CONFIG ----------------
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-formatter = logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-)
-
-file_handler = logging.FileHandler("parser.log", encoding="utf-8")
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
-# ------------------------------------------------
+from config.logger_config import setup_logging
 
 
 def quit_driver(driver):
@@ -137,6 +114,8 @@ def got_to_first_product(driver):
 
 
 if __name__ == "__main__":
+    logger = setup_logging()
+
     logging.info("Starting the parser...")
     try:
         driver = create_driver(chrome_version=131)
