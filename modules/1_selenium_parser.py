@@ -7,15 +7,17 @@ collects complete information about the product, and saves it to a PostgreSQL da
 from load_django import *
 from parser_app.models import Product
 
-import undetected_chromedriver as uc
-from selenium import webdriver
+import random
+from time import sleep
+import logging
+
+# import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-import random
-from time import sleep
-import logging
+
+from config.driver_config import create_driver
 
 # logging.basicConfig(
 #     level=logging.INFO,
@@ -30,8 +32,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
+    "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 
 file_handler = logging.FileHandler("parser.log", encoding="utf-8")
@@ -42,6 +43,7 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 # ------------------------------------------------
+
 
 def quit_driver(driver):
     """Quit the WebDriver instance."""
@@ -57,78 +59,92 @@ def quit_driver(driver):
 
 def get_url(driver, url):
     """Navigate to the specified URL."""
-    try:
-        driver.get(url)
-        logging.info(f"Navigated to URL: {url}")
-    except Exception as e:
-        logging.error(f"Failed to load URL {url}: {e}")
-    sleep(random.uniform(2, 6))
+    for attempt in range(3):
+        try:
+            driver.get(url)
+            logging.info(f"Navigated to URL after {attempt + 1} attempts: {url}")
+            sleep(random.uniform(2, 6))
+            return True
+        except Exception as e:
+            logging.error(f"Failed to load URL {url} after {attempt + 1} attempts: {e}")
+            sleep(random.uniform(1, 4))
+    raise Exception(f"Not found {url} after 3 attempts")
 
 
 def search_product(driver, product_name):
+    """Search write and click on the product."""
     wait = WebDriverWait(driver, 10)
 
-    try:
-        search_input = wait.until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//div[contains(@class, 'header-bottom-in')]//input[@class='quick-search-input']",
+    for attempt in range(3):
+        try:
+            search_input = wait.until(
+                EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        "//div[contains(@class, 'header-bottom-in')]//input[@class='quick-search-input']",
+                    )
                 )
             )
-        )
-        search_input.clear()
-        search_input.send_keys(product_name)
-        logging.info(f"Searching for product: {product_name}")
-        sleep(random.uniform(1, 3))
+            search_input.clear()
+            search_input.send_keys(product_name)
+            logging.info(
+                f"Searching for product: {product_name}, attempt {attempt + 1}"
+            )
+            sleep(random.uniform(1, 3))
 
-        search_button = wait.until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//input[@type='submit' and @class='qsr-submit' and @value='Знайти']",
+            search_button = wait.until(
+                EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        "//input[@type='submit' and @class='qsr-submit' and @value='Знайти']",
+                    )
                 )
             )
-        )
-        search_button.click()
-        sleep(random.uniform(1, 4))
-        logging.info(f"Searched for product: {product_name}")
-    except (NoSuchElementException, TimeoutException) as e:
-        logging.error(f"Error during product search: {e}")
+            search_button.click()
+            sleep(random.uniform(1, 4))
+            logging.info(f"Search clicked successfully on attempt {attempt + 1}")
+            return True
+        except (NoSuchElementException, TimeoutException) as e:
+            logging.error(f"Search error (attempt {attempt+1}): {e}")
+            sleep(2)
+    raise TimeoutException("Search product failed after 3 retries")
+
+
+def got_to_first_product(driver):
+    """Go to first product from the search results."""
+    wait = WebDriverWait(driver, 10)
+
+    for attempt in range(3):
+        try:
+            first_product = wait.until(
+                EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        '(//div[@data-stock="1"])[1]//a',
+                    )
+                )
+            )
+            first_product.click()
+            sleep(random.uniform(2, 5))
+            logging.info(f"Navigated to first product page on attempt {attempt + 1}")
+            return True
+        except (NoSuchElementException, TimeoutException) as e:
+            logging.error(
+                f"Navigation error to first product (attempt {attempt+1}): {e}"
+            )
+            sleep(2)
+    raise TimeoutException("Navigation to first product failed after 3 retries")
 
 
 if __name__ == "__main__":
-    options = uc.ChromeOptions()
-    
-    # stealth mode
-    options.add_argument("--headless=new")
-    options.add_argument("--window-size=1920,1080")
-
-    # anti-detect + shutdowns
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--disable-notifications")
-    options.add_argument("--start-maximized")
-    options.add_argument("--disable-features=Autoupgrade")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--no-first-run")
-    options.add_argument("--disable-component-update")
-    options.add_argument("--disable-background-networking")
-
-    options.add_experimental_option(
-        "prefs",
-        {
-            "profile.default_content_setting_values.geolocation": 2,
-            "profile.default_content_setting_values.notifications": 2,
-            "intl.accept_languages": "uk-UA,uk,en-US,en",
-        },
-    )
-
+    logging.info("Starting the parser...")
     try:
-        driver = uc.Chrome(options=options, use_subprocess=True, version_main=131)
-        driver.maximize_window()
+        driver = create_driver(chrome_version=131)
         get_url(driver, "https://brain.com.ua/")
         search_product(driver, "Apple iPhone 15 128GB Black")
+        got_to_first_product(driver)
+
+        # Wait for product listings to load
         input("Press Enter to close the browser...")
         quit_driver(driver)
 
