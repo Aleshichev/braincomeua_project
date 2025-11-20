@@ -15,8 +15,8 @@ def get_chrome_options() -> uc.ChromeOptions:
     options = uc.ChromeOptions()
 
     # stealth mode
-    # options.add_argument("--headless=new")
-    # options.add_argument("--window-size=1920,1080")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
 
     # anti-detect + shutdowns
     options.add_argument("--disable-blink-features=AutomationControlled")
