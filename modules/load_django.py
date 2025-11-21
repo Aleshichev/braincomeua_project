@@ -5,6 +5,7 @@ Allows you to use Django models outside the project folder.
 
 import os
 import sys
+
 import django
 
 # Get the root directory (parent of modules/)

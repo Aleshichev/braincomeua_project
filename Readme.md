@@ -85,39 +85,6 @@ poetry run python manage.py runserver
 ```
 Then visit `http://localhost:8000/admin/`
 
-## Project Structure
-
-```
-.
-├── braincomua_project/              # Django project
-│   ├── braincomua_project/          # Main settings package
-│   │   ├── settings.py              # Django settings (DB, apps, etc.)
-│   │   ├── urls.py                  # URL routing
-│   │   └── ...
-│   ├── parser_app/                  # Django app for parser
-│   │   ├── models.py                # Product model
-│   │   ├── admin.py                 # Admin interface
-│   │   └── migrations/              # Database migrations
-│   └── manage.py                    # Django management script
-│
-├── modules/                         # Selenium parser modules
-│   ├── 1_selenium_parser.py         # Main parser script
-│   ├── load_django.py               # Django environment loader
-│   ├── config/                      # Configuration
-│   │   ├── driver_config.py         # Undetected-chromedriver setup
-│   │   └── logger_config.py         # Logging configuration
-│   └── utils/                       # Utility modules
-│       ├── collect_products.py      # Product data extraction logic
-│       └── search_product.py        # Search & navigation logic
-│
-├── results/                         # Output directory
-│   └── products.csv                 # Exported product data
-│
-├── pyproject.toml                   # Poetry dependencies
-├── docker-compose.yml               # PostgreSQL container
-└── parser.log                       # Application logs (auto-generated)
-```
-
 ## Logging
 
 All parser operations are logged to `parser.log` with timestamps and severity levels.

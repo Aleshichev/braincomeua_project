@@ -15,6 +15,9 @@ undetected-chromedriver = "^3.5.5"
 pandas = "^2.3.3"
 
 
+[tool.poetry.group.dev.dependencies]
+isort = "^7.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

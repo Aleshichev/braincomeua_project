@@ -2,15 +2,15 @@
 Module for searching and navigating to products using Selenium.
 """
 
+import logging
 import random
 from time import sleep
-import logging
 
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 # import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 def search_product(driver, product_name):
