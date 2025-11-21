@@ -16,6 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver import ActionChains
 
 # config imports
 from config.driver_config import create_driver
@@ -122,100 +123,112 @@ def collect_product_data(driver):
     product_data = {}
 
     # Product title
+    # try:
+    #     title = wait.until(
+    #         EC.presence_of_element_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='main-right-block ']//h1[@class='desktop-only-title']",
+    #             )
+    #         )
+    #     )
+    #     product_data["title"] = title.text.strip()
+    #     logging.info(f"Product title found: {product_data['title']}")
+    # except NoSuchElementException:
+    #     product_data["title"] = None
+    #     logging.error("Product title not found.")
+
+    # # Extract color, memory, manufacturer from title
+    # parts = title.text.strip().split()
+    # product_data["color"] = parts[-2]
+    # product_data["memory"] = parts[-3]
+    # product_data["manufacturer"] = parts[2]
+
+    # logging.info(
+    #     f"Extracted color: {product_data['color']}, memory: {product_data['memory']}, manufacturer: {product_data['manufacturer']}"
+    # )
+
+    # # Original price
+    # try:
+    #     original_price = wait.until(
+    #         EC.presence_of_element_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='br-pr-price main-price-block']//div[@class='price-wrapper']",
+    #             )
+    #         )
+    #     )
+    #     product_data["original_price"] = original_price.text.strip()
+    #     logging.info(f"Price found: {product_data['original_price']}")
+    # except NoSuchElementException:
+    #     product_data["original_price"] = None
+    #     logging.error("Price not found.")
+
+    # # Sale price
+    # product_data["sale_price"] = None
+
+    # # All photos
+    # try:
+    #     photo_elements = wait.until(
+    #         EC.presence_of_all_elements_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='product-block-right']//div[@class='slick-track']//img",
+    #             )
+    #         )
+    #     )
+    #     product_data["photos"] = []
+    #     for img in photo_elements:
+    #         src = img.get_attribute("src")
+    #         if src:
+    #             product_data["photos"].append(src)
+    #     logging.info(f"Added {len(product_data['photos'])} photos.")
+    # except NoSuchElementException:
+    #     product_data["photos"] = []
+    #     logging.info("No photos found.")
+
+    # # Review count
+    # try:
+    #     review_count = wait.until(
+    #         EC.presence_of_element_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='title']//a[@class='forbid-click reviews-count']//span",
+    #             )
+    #         )
+    #     )
+    #     product_data["reviews_count"] = int(review_count.text.strip())
+    #     logging.info(f"Review count found: {product_data['reviews_count']}")
+    # except NoSuchElementException:
+    #     product_data["reviews_count"] = None
+    #     logging.error("Review count not found.")
+
+    # # Code of the product
+    # try:
+    #     code = wait.until(
+    #         EC.presence_of_element_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='title']//span[@class='br-pr-code-val']",
+    #             )
+    #         )
+    #     )
+    #     product_data["code"] = code.text.strip()
+    #     logging.info(f"Product code found: {product_data['code']}")
+    # except NoSuchElementException:
+    #     product_data["code"] = None
+    #     logging.error("Product code not found.")
+
+    # Scroll to all characteristics
+
     try:
-        title = wait.until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='main-right-block ']//h1[@class='desktop-only-title']",
-                )
-            )
-        )
-        product_data["title"] = title.text.strip()
-        logging.info(f"Product title found: {product_data['title']}")
-    except NoSuchElementException:
-        product_data["title"] = None
-        logging.error("Product title not found.")
+        ActionChains(driver).scroll_by_amount(0, 700).perform()
+        sleep(random.uniform(2, 5))
+        logging.info("Scrolled to amount 700")
+    except:
+        ActionChains(driver).scroll_by_amount(0, 1000).perform()
+        sleep(random.uniform(1, 4))
 
-    # Extract color, memory, manufacturer from title
-    parts = title.text.strip().split()
-    product_data["color"] = parts[-2]
-    product_data["memory"] = parts[-3]
-    product_data["manufacturer"] = parts[2]
-
-    logging.info(
-        f"Extracted color: {product_data['color']}, memory: {product_data['memory']}, manufacturer: {product_data['manufacturer']}"
-    )
-
-    # Original price
-    try:
-        original_price = wait.until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='br-pr-price main-price-block']//div[@class='price-wrapper']",
-                )
-            )
-        )
-        product_data["original_price"] = original_price.text.strip()
-        logging.info(f"Price found: {product_data['original_price']}")
-    except NoSuchElementException:
-        product_data["original_price"] = None
-        logging.error("Price not found.")
-
-    # All photos
-    try:
-        photo_elements = wait.until(
-            EC.presence_of_all_elements_located(
-                (
-                    By.XPATH,
-                    "//div[@class='product-block-right']//div[@class='slick-track']//img",
-                )
-            )
-        )
-        product_data["photos"] = []
-        for img in photo_elements:
-            src = img.get_attribute("src")
-            if src:
-                product_data["photos"].append(src)
-        logging.info(f"Added {len(product_data['photos'])} photos.")
-    except NoSuchElementException:
-        product_data["photos"] = []
-        logging.info("No photos found.")
-
-    # Review count
-    try:
-        review_count = wait.until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='title']//a[@class='forbid-click reviews-count']//span",
-                )
-            )
-        )
-        product_data["reviews_count"] = int(review_count.text.strip())
-        logging.info(f"Review count found: {product_data['reviews_count']}")
-    except NoSuchElementException:
-        product_data["reviews_count"] = None
-        logging.error("Review count not found.")
-
-    # Code of the product
-    try:
-        code = wait.until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='title']//span[@class='br-pr-code-val']",
-                )
-            )
-        )
-        product_data["code"] = code.text.strip()
-        logging.info(f"Product code found: {product_data['code']}")
-    except NoSuchElementException:
-        product_data["code"] = None
-        logging.error("Product code not found.")
-        
-    
     # Click to show all characteristics
     try:
         all_characteristics = wait.until(
@@ -232,76 +245,82 @@ def collect_product_data(driver):
     except (NoSuchElementException, TimeoutException) as e:
         logging.error(f"Navigation error to all characteristics: {e}")
 
+    # Scroll
+    ActionChains(driver).scroll_by_amount(0, 1000).perform()
+    sleep(random.uniform(2, 5))
+    logging.info("Scrolled to amount 1000")
+    
+    
+    # Collect specifications
+    try:
+        specifications = wait.until(
+            EC.presence_of_all_elements_located(
+                (
+                    By.XPATH,
+                    "//div[@class='br-wrap-block br-elem-block']",
+                )
+            )
+        )
+        specs_dict = {}
+        for spec in specifications:
+            try:
+                details = spec.find_elements(By.XPATH, ".//div[@class='br-pr-chr-item']") 
+                for detail in details:
+                    try:
+                        title_section = detail.find_element(By.XPATH, ".//h3").text.strip()
+                        specs_dict[title_section] = {}
+                        rows = detail.find_elements(By.XPATH, ".//div")
+                        print(rows)
+                        for row in rows:
+                            try:
+                                spans = row.find_elements(By.XPATH, ".//span")
+                                if len(spans) >= 2:
+                                    key = spans[0].text.strip()
+                                values = []
+                                for span in spans[1:]:
+                                    # Check for links inside the span
+                                    links = span.find_elements(By.XPATH, ".//a")
+                                    if links:
+                                        values.extend([link.text.strip() for link in links])
+                                    else:
+                                        text = span.text.strip()
+                                        if text:
+                                            values.append(text)
+                                
+                                # Set value to dictionary
+                                value = ", ".join(values) if values else ""
+                                if key:
+                                    specs_dict[title_section][key] = value
+                            except NoSuchElementException:
+                                logging.warning("Section title (h3) not found in detail block")
+                                continue
+                        logging.info(f"Collected {len(specs_dict)} specification sections.")
+                    except NoSuchElementException:
+                        logging.error("Specification details not found.")
+                        continue
+                logging.info(f"Collected  details for specification.")
+            except NoSuchElementException:
+                specs_dict["details"] = {}
+                logging.error("Specification details not found.")
+            
+        product_data["specifications"] = specs_dict
+        logging.info(f"Collected {len(specs_dict)} specifications.")
+        
+        # for spec in specifications:
+        #     try:
+        #         key = spec.find_element(By.XPATH, ".//td[1]").text.strip()
+        #         value = spec.find_element(By.XPATH, ".//td[2]").text.strip()
+        #         specs_dict[key] = value
+        #     except NoSuchElementException:
+        #         continue
+        # product_data["specifications"] = specs_dict
+        # logging.info(f"Collected {len(specs_dict)} specifications.")
+    except NoSuchElementException:
+        product_data["specifications"] = {}
+        logging.error("Specifications not found.")
+    
+
     print(product_data)
-
-    # # Получение спецификаций для диагонали и разрешения
-    # try:
-    #     specs = driver.find_elements(
-    #         By.XPATH,
-    #         "//div[contains(@class, 'prod-tabs__content')]//div[contains(@class, 'prod-specs__item')]",
-    #     )
-    # except NoSuchElementException:
-    #     specs = []
-
-    # # Диагональ экрана
-    # product_data["screen_diagonal"] = None
-    # for spec in specs:
-    #     try:
-    #         spec_text = spec.text
-    #         if "Діагональ" in spec_text or "Диагональ" in spec_text:
-    #             product_data["screen_diagonal"] = spec.find_element(
-    #                 By.XPATH, ".//span[contains(@class, 'prod-specs__value')]"
-    #             ).text.strip()
-    #             break
-    #     except NoSuchElementException:
-    #         continue
-
-    # # Разрешение дисплея
-    # product_data["screen_resolution"] = None
-    # for spec in specs:
-    #     try:
-    #         spec_text = spec.text
-    #         if "Роздільна здатність" in spec_text or "Разрешение" in spec_text:
-    #             product_data["screen_resolution"] = spec.find_element(
-    #                 By.XPATH, ".//span[contains(@class, 'prod-specs__value')]"
-    #             ).text.strip()
-    #             break
-    #     except NoSuchElementException:
-    #         continue
-
-    # # Характеристики товара (все)
-    # try:
-    #     # Переход на вкладку характеристик
-    #     characteristics_tab = driver.find_element(
-    #         By.XPATH, "//a[@href='#prod-characteristics']"
-    #     )
-    #     driver.execute_script("arguments[0].click();", characteristics_tab)
-    #     sleep(random.uniform(0.5, 1))
-
-    #     characteristics = {}
-    #     char_rows = driver.find_elements(
-    #         By.XPATH,
-    #         "//div[@id='prod-characteristics']//div[contains(@class, 'prod-specs__item')]",
-    #     )
-
-    #     for row in char_rows:
-    #         try:
-    #             key = row.find_element(
-    #                 By.XPATH, ".//span[contains(@class, 'prod-specs__title')]"
-    #             ).text.strip()
-    #             value = row.find_element(
-    #                 By.XPATH, ".//span[contains(@class, 'prod-specs__value')]"
-    #             ).text.strip()
-    #             characteristics[key] = value
-    #         except NoSuchElementException:
-    #             continue
-
-    #     product_data["characteristics"] = characteristics
-    # except NoSuchElementException:
-    #     product_data["characteristics"] = {}
-
-    # return product_data
-    # pass
 
 
 if __name__ == "__main__":
