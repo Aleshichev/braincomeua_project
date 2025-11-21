@@ -20,7 +20,7 @@ from config.driver_config import create_driver
 from config.logger_config import setup_logging
 
 # utils imports
-from utils.collect_products import collect_product_data
+from modules.utils.collect_data import collect_product_data
 from utils.search_product import search_product, go_to_first_product
 
 
