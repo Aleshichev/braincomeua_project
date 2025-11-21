@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "braincomua-project"
 version = "0.1.0"
-description = "parsing brain.com.ua"
+description = "parsing brain.com.ua with selenium"
 authors = ["Igor <Aleshichev.git@email.ua>"]
 readme = "README.md"
 
